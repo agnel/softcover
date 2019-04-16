@@ -93,6 +93,11 @@ class Softcover::BookManifest < OpenStruct
     def cache_filename
       Softcover::Utils.path("tmp/#{full_name}.cache")
     end
+
+    # Returns true if chapter is a appendix
+    def appendix?
+      self.slug == 'appendix'
+    end
   end
 
   class Section < OpenStruct
@@ -168,10 +173,9 @@ class Softcover::BookManifest < OpenStruct
           Section.new(name: name, section_number: j += 1)
         end
         chapter_title = title if article?
-        chapters.push Chapter.new(slug: slug,
-                                  title: chapter_title,
-                                  sections: sections,
-                                  chapter_number: i + 1)
+        chapter = Chapter.new(slug: slug, title: chapter_title, sections: sections)
+        chapter.chapter_number = chapter.appendix? ? (i+1)  :  ''
+        chapters.push chapter
       end
     end
     write_master_latex_file(self)
